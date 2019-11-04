@@ -1,0 +1,29 @@
+ami             = "ami-0f2b4fc905b0bd1f1" #CentOS 1901_01
+hashi_tools_rpm = ""
+instance_type   = "m5.large"
+
+#Keep at 0.0.1/bootstrap=true during initial ACL Bootsstrap/Vault Recovery Init
+#Then move both to 0.0.2
+consul_cluster_version = "0.0.1"
+vault_cluster_version  = "0.0.1"
+bootstrap              = true
+
+
+#SSH Key
+key_name    = "yourname"
+name_prefix = "yourname"
+vpc_id      = "vpc-b61d20de"
+subnets     = "subnet-73fc063f,subnet-aa1281d0,subnet-33f8dd5b"
+
+elb_internal = false
+public_ip    = true
+
+vault_nodes      = "3"
+consul_nodes     = "3"   #You can use an even number when using redundancy zones
+redundancy_zones = false #Currently has issues with UpgradeMigrations
+
+# Used to auto-join Consul servers into cluster
+auto_join_tag = "yourname-demo-cluster"
+
+owner = "somebody@hashicorp.com"
+ttl   = "-1"
