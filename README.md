@@ -81,9 +81,9 @@ vault_security_group = sg-0a4c0e2f499e2e0cf
 You will be able to use the Vault ELB URL after you complete the bootstrap process.
 
 1. In the AWS Console, find and select your Vault instances and pick one.
-1. Determine the public or private(if using bastion) ip address to use to connect to the instance.
-1. ssh -i ~/.ssh/id_my_aws_key centos@<ip address>
-1. On the Vault server, run the following commands:
+2. Determine the public or private(if using bastion) ip address to use to connect to the instance.
+3. ssh -i ~/.ssh/id_my_aws_key centos@ip.ip.ip.ip
+4. On the Vault server, run the following commands:
 
 ```
 export VAULT_ADDR=http://127.0.0.1:8200
@@ -92,9 +92,9 @@ vault operator init -recovery-shares=1 -recovery-threshold=1
 The init command will show you your root token and unseal key. (In a real production environment, you would specify a larger key threshold `-recovery-shares=5 -recovery-threshold=3` and use PGP/keybase encryption to protect the values). These will be important for going through the subsequent configuration processes and need to be protected/kept in a safe place.
 
 1. In the AWS Console, find and select your Consul instances and pick one.
-1. Determine the public or private(if using bastion) ip address to use to connect to the instance.
-1. ssh -i ~/.ssh/id_my_aws_key centos@<ip address>
-1. On the Consul server, run the following commands:
+2. Determine the public or private(if using bastion) ip address to use to connect to the instance.
+3. ssh -i ~/.ssh/id_my_aws_key centos@ip.ip.ip.ip
+4. On the Consul server, run the following commands:
 
 ```
 /home/centos/bootstrap_tokens.sh
@@ -104,5 +104,16 @@ Now you need to increment your TF variables for consul_cluster_version/vault_clu
 ```
 terraform apply
 ```
-
 Following the next deployment you should be able to reach your Vault UI/API via the elb address listed in the outputs.
+
+Now, Optionally you can update the Consul anonymous token ACL policy to include some basic functionality to support DNS queries and other basic read only operational commands.
+This script will only be available during consul_cluster_version 0.0.2
+
+1. In the AWS Console, find and select your Consul instances and pick one.
+2. Determine the public or private(if using bastion) ip address to use to connect to the instance.
+3. ssh -i ~/.ssh/id_my_aws_key centos@ip.ip.ip.ip
+4. On the Consul server, run the following commands:
+
+```
+/home/centos/anonymous_token.sh
+```

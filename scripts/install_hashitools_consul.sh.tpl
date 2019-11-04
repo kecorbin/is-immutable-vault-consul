@@ -66,9 +66,11 @@ node_meta = {
 }
 EOF
 %{ if bootstrap }
+cat << EOF > /home/centos/bootstrap_tokens.sh
+#!/bin/bash
+export CONSUL_HTTP_TOKEN=${master_token}
 
-#ACL Policies
-cat << EOF > /home/centos/agent_vault.hcl
+echo '
 node_prefix "" {
   policy = "write"
 }
@@ -77,10 +79,9 @@ service_prefix "" {
 }
 agent_prefix "" {
   policy = "write"
-}
-EOF
+}' | consul acl policy create -name consul-agent-vault
 
-cat << EOF > /home/centos/agent_server.hcl
+echo '
 node_prefix "" {
   policy = "write"
 }
@@ -92,10 +93,9 @@ service "consul" {
 }
 agent_prefix "" {
   policy = "write"
-}
-EOF
+}' | consul acl policy create -name consul-agent-server
 
-cat << EOF > /home/centos/vault.hcl
+echo '
 key_prefix "vault/" {
   policy = "write"
 }
@@ -110,10 +110,9 @@ node_prefix "" {
 }
 agent_prefix "" {
   policy = "write"
-}
-EOF
+}' | consul acl policy create -name vault
 
-cat << EOF > /home/centos/snapshot.hcl
+echo '
 acl = "write"
 key "consul-snapshot/lock" {
  policy = "write"
@@ -123,10 +122,21 @@ session_prefix "" {
 }
 service "consul-snapshot" {
  policy = "write"
-}
+}' | consul acl policy create -name snapshot_agent
+
+consul acl token create -description "consul agent vault token" -policy-name consul-agent-vault -secret "${agent_vault_token}"
+consul acl token create -description "consul agent server token" -policy-name consul-agent-vault -secret "${agent_server_token}"
+consul acl token create -description "vault application token" -policy-name vault -secret "${vault_app_token}"
+consul acl token create -description "consul snapshot agent" -policy-name snapshot_agent -secret "${snapshot_token}"
 EOF
 
-cat << EOF > /home/centos/anonymous.hcl
+chmod +x /home/centos/bootstrap_tokens.sh
+%{ endif }
+%{ if consul_cluster_version == "0.0.2"}
+cat << EOF > /home/centos/anonymous_token.sh
+#!/bin/bash
+export CONSUL_HTTP_TOKEN=${master_token}
+echo '
 node_prefix "" {
   policy = "read"
 }
@@ -144,26 +154,11 @@ query_prefix "" {
 }
 operator_prefix "" {
   policy = "read"
-}
-EOF
-
-cat << EOF > /home/centos/bootstrap_tokens.sh
-#!/bin/bash
-export CONSUL_HTTP_TOKEN=${master_token}
-consul acl policy create -name consul-agent-vault -rules @agent_vault.hcl
-consul acl policy create -name consul-agent-server -rules @agent_server.hcl
-consul acl policy create -name vault -rules @vault.hcl
-consul acl policy create -name snapshot_agent -rules @snapshot.hcl
-consul acl policy create -name anonymous -rules @anonymous.hcl
-
-consul acl token create -description "consul agent vault token" -policy-name consul-agent-vault -secret "${agent_vault_token}"
-consul acl token create -description "consul agent server token" -policy-name consul-agent-vault -secret "${agent_server_token}"
-consul acl token create -description "vault application token" -policy-name vault -secret "${vault_app_token}"
-consul acl token create -description "consul snapshot agent" -policy-name snapshot_agent -secret "${snapshot_token}"
+}' |  consul acl policy create -name anonymous
 consul acl token update -id anonymous -policy-name anonymous
 EOF
 
-chmod +x /home/centos/bootstrap_tokens.sh
+chmod +x /home/centos/anonymous_token.sh
 %{ endif }
 chown -R consul:consul /etc/consul.d
 chmod -R 640 /etc/consul.d/*
