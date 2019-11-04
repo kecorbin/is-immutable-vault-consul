@@ -12,10 +12,10 @@ The Terraform code will create the following resources in a VPC and subnet that 
 * 1 AWS Elastic Load Balancers for Vault
 * 2 AWS security groups, one for the Vault and Consul EC2 instances and one for the ELB.
 * Security Group Rules to control ingress and egress for the instances and the ELB. These attempt to limit most traffic to inside and between the two security groups, but do allow the following broader access:
-** inbound SSH access on port 22 from anywhere
-** inbound access to the ELBs on ports 8200 for Vault
-** outbound calls on port 80/443 to anywhere (so that the installation scripts can download the vault and consul binaries and reach yum repositories)
-** After installation, those broader security group rules could be made tighter.
+   * inbound SSH access on port 22 from anywhere
+   * inbound access to the ELBs on ports 8200 for Vault
+   * outbound calls on port 80/443 to anywhere (so that the installation scripts can download the vault and consul binaries and reach yum repositories)
+   * After installation, those broader security group rules could be made tighter.
 * Consul ACL seeds for the various tokens required to protect vault/consul.
 * Consul Gossip Encryption Key generation
 * Mutual TLS for Consul communication between Consul Servers/Vault Nodes(wip)
