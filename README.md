@@ -19,6 +19,7 @@ The Terraform code will create the following resources in a VPC and subnet that 
 * Consul ACL seeds for the various tokens required to protect vault/consul.
 * Consul Gossip Encryption Key generation
 * Mutual TLS for Consul communication between Consul Servers/Vault Nodes(wip)
+* Consul Snapshot Agent Running on Vault nodes as a highly available service dumping snapshots to S3
 * TLS for Vault has been left out as this will be customer specific and will typically require internally trusted certificates from AD/Venafi/AWS ACM/or a different CA.
 
 You can deploy this in either a public or a private subnet.  But you must set elb_internal and public_ip as instructed below in both cases. The VPC should have at least 3 subnets for high availability.
